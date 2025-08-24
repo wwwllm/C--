@@ -19,16 +19,13 @@ int randINT(int l, int r)
 
 signed main()
 {
-	cout << 1 << '\n';
-	int n = randINT(3, 4), q = randINT(2, 3);
-	cout << n << ' ' << q << '\n';
-	for (int i = 1; i <= n; i++)
-	{
-		int x = randINT(1, 5);
-		if (i != n)
-			cout << x << ' ';
-		else
-			cout << x;
+	cout<<1<<'\n';
+
+	int n = randINT(1, 20);
+	cout<<n<<'\n';
+	for (int i = 1;i<=n;i++){
+		int x=randINT(1,100);
+		cout << x << ' ';
 	}
 	cout << '\n';
 	return 0;

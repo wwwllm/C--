@@ -1,12 +1,14 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int N = 1e5 + 10, M = 1e6 + 10;
-char s[M], p[N];
-int n, m, ne[N];
 signed main()
 {
-    cin >> n >> p + 1 >> m >> s + 1;
+    int n, m;
+    string s, p;
+    cin >> n >> p >> m >> s;
+    vector<int> ne(n + 1);
+    s = '0' + s;
+    p = '0' + p;
     for (int i = 2, j = 0; i <= n; i++)
     {
         while (j && p[i] != p[j + 1])

@@ -29,9 +29,9 @@ void solve()
     int a = p / 4;
     int b = p / 2 - a;
     for (int i = 0; i < a; i++)
-        cout << "0 " << i << '\n';
-    for (int i = 1; i < b; i++)
         cout << i << " 0" << '\n';
+    for (int i = 1; i < b; i++)
+        cout << "0 " << i << '\n';
     s -= a + b - 1;
     for (int i = 1; i < a; i++)
         for (int j = 1; j < b; j++)
