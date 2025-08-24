@@ -1,46 +1,57 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #define int long long
 using namespace std;
 
-struct dian{
-	int x,v;
-};
-const int maxn=1e5+50;
-dian p[maxn];
-int s[maxn]={0},ans[maxn],top=0,m=0;
-bool cmp(dian a,dian b){
-	return a.x<b.x;
-}
-void solve(){
-	int n,k;
-	cin>>n>>k;
-	for(int i=1;i<=n;i++){
-		cin>>p[i].x>>p[i].v;
+const int INF = 1e10;
+signed main()
+{
+	ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+	int N, k;
+	cin >> N >> k;
+	vector<int> p, q;
+	for (int i = 1; i <= N; i++)
+	{
+		int x, v;
+		cin >> x >> v;
+		if (v == -1)
+			q.push_back(x);
+		else
+			p.push_back(x);
 	}
-	sort(p+1,p+1+n,cmp);
-	int i=n;
-	while(i){
-		if(p[i].v==-1){
-			s[++top]=p[i].x;
+	sort(p.begin(), p.end());
+	sort(q.begin(), q.end());
+	int n = p.size(), m = q.size();
+	auto cmp = [&](int x) -> bool
+	{
+		int ans = 0;
+		for (int i = 0, p1 = 0, p2 = 0; i < n; i++)
+		{
+
+			while (p1 < m && q[p1] < p[i])
+				p1++;
+			while (p2 < m && q[p2] <= p[i] + x)
+				p2++;
+			ans += p2 - p1;
 		}
-		else{ 
-			
-		}
-		i--;
+		// cout << x << ' ' << ans << '\n';
+		return ans >= k;
+	};
+	int l = 0, r = INF;
+	while (l + 1 != r)
+	{
+		int mid = l + r >> 1;
+		if (cmp(mid))
+			r = mid;
+		else
+			l = mid;
 	}
-	sort(ans+1,ans+1+m);
-	double time=0.0;
-	if(m<k)cout<<"No"<<endl;
-	else{
-		cout<<"Yes"<<endl;
-		time=ans[k];
-		cout<<fixed<<setprecision(6)<<time/2<<endl;
+	if (r > INF / 2)
+		cout << "No\n";
+	else
+	{
+		double t = 1.0 * r / 2;
+		cout << "Yes\n";
+		cout << fixed << setprecision(6) << t << '\n';
 	}
-}
-signed main(){
-	ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
-	int t=1;
-	//cin>>t;
-	while (t--) solve();
 	return 0;
 }

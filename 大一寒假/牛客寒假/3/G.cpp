@@ -1,52 +1,55 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #define int long long
 using namespace std;
 
-const int maxn=1000;
-int p[maxn]={0},d[maxn],top=0;
-bool cmp(int a,int b){
-	return a>b;
-}
-void solve(){
-	int n;
-	int k;
-	cin>>n>>k;
-	for(int i=1;i*i<=n;i++){
-		if(n%i==0&&i*i!=n){
-			int x=n/i;
-			p[++top]=i;
-			p[++top]=x;
-		}else if(n%i==0){
-			p[++top]=i;
-		}
-	}
-	sort(p+1,p+1+top);
-	for(int i=1;i<top;i++){
-		d[i]=p[i+1]-p[i]-1;
-	}
-	sort(d+1,d+top+1,cmp);
-	int t=k,i=1,ans=0;
-	while(t!=0&&i<=top){
-		if(d[i]>d[i+1]){
-			if(t>=i){
-				ans+=d[i]*i;
-				d[i]--;
-				t-=i;
-			}else{
-				ans+=d[i]*t;
-				t=0;
-				break;
+void solve()
+{
+	int n, K;
+	cin >> n >> K;
+	int vcnt = 0;
+	int l = -1, r = n;
+	auto cmp = [&](int x) -> array<int, 2>
+	{
+		int ll = 1, rr, cnt = 0, ans = 0;
+		while (ll <= n)
+		{
+			int k = n / ll;
+			rr = n / k;
+			int a = n % ll;
+			if (a < x)
+			{
+				ll = rr + 1;
+				continue;
 			}
-		}else{
-			i++;
+			int len = min((a - x) / k + 1, rr - ll + 1);
+			cnt += len;
+			ans += (a * 2 - k * (len - 1)) * len / 2;
+			ll = rr + 1;
+		}
+		return {cnt, ans};
+	};
+	while (l + 1 != r)
+	{
+		int mid = l + r >> 1;
+		auto [res, x] = cmp(mid);
+		if (res >= K)
+			l = mid;
+		else
+		{
+			r = mid;
+			vcnt = res;
 		}
 	}
-	cout<<ans<<endl;
+	int ans = max(0LL, (K - vcnt) * (r - 1));
+	auto [x, sum] = cmp(r);
+	cout << ans + sum << '\n';
 }
-signed main(){
+signed main()
+{
 	ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
-	int t=1;
-	//cin>>t;
-	while (t--) solve();
+	int t = 1;
+	// cin>>t;
+	while (t--)
+		solve();
 	return 0;
 }
