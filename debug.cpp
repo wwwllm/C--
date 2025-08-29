@@ -1,71 +1,148 @@
 #include <bits/stdc++.h>
+
+using i32 = int;
+using i64 = long long;
+using i128 = __int128;
+using u32 = unsigned;
+using u64 = unsigned long long;
+using u128 = unsigned __int128;
+#define int long long
 using namespace std;
 
-const int inf = 1e9;
-void solve()
+class TreeAnc
 {
-    int n, m;
-    cin >> n >> m;
-    vector<int> a(n + 1);
-    for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    if (m == 1)
+private:
+    vector<vector<int>> anc;
+    int maxLog;
+    vector<int> depth;
+
+public:
+    TreeAnc(vector<vector<int>> &adj, int root = 1)
     {
-        int ans = 0;
-        int M = *max_element(a.begin() + 1, a.end());
-        vector<int> d(n + 2);
-        for (int i = 1; i <= n; i++)
+        int n = adj.size();
+        maxLog = __lg(n) + 1;
+        anc.resize(maxLog, vector<int>(n, -1));
+
+        // bfs
+        depth.assign(n, -1);
+        vector<int> st;
+        st.push_back(root);
+        depth[root] = 0;
+        while (!st.empty())
         {
-            d[i] = M - a[i];
-        }
-        for (int i = 1; i <= n; i++)
-        {
-            if (d[i] > d[i - 1])
-                ans += d[i] - d[i - 1];
-        }
-        cout << ans << '\n';
-    }
-    else
-    {
-        int M = *max_element(a.begin() + 1, a.end());
-        int N = *min_element(a.begin() + 1, a.end());
-        int res = 1e9;
-        vector<array<int, 2>> dp(n + 1, {inf, inf});
-        for (int l = N; l <= 10; l++)
-        {
-            for (int r = M; r <= 10; r++)
+            int node = st.back();
+            st.pop_back();
+            for (int son : adj[node])
             {
-                dp[1][1] = r - a[1];
-                dp[1][0] = l < a[1] ? inf : l - a[1];
-                for (int i = 2; i <= n; i++)
+                if (depth[son] == -1)
                 {
-                    if (a[i] <= l)
-                    {
-                        int cnt1 = 0, cnt2 = 0;
-                        cnt1 = max(0, a[i - 1] - a[i]);
-                        cnt2 = l - a[i] - (r - a[i - 1]);
-                        cnt2 = max(0, cnt2);
-                        dp[i][0] = min(dp[i - 1][0] + cnt1, dp[i - 1][1] + cnt2);
-                    }
-                    int cnt0 = 0, cnt1 = 0;
-                    cnt0 = r - a[i] - (l - a[i - 1]);
-                    cnt0 = max(cnt0, 0);
-                    cnt1 = r - a[i] - (r - a[i - 1]);
-                    cnt1 = max(0, cnt1);
-                    dp[i][1] = min(dp[i - 1][0] + cnt0, dp[i - 1][1] + cnt1);
+                    depth[son] = depth[node] + 1;
+                    anc[0][son] = node;
+                    st.push_back(son);
                 }
-                res = min({res, dp[n][1], dp[n][0]});
             }
         }
-        cout << res << '\n';
+
+        for (int i = 1; i < maxLog; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (anc[i - 1][j] != -1)
+                {
+                    anc[i][j] = anc[i - 1][anc[i - 1][j]];
+                }
+            }
+        }
     }
+
+    int query(int p, int step)
+    {
+        if (step < 0)
+            return -1;
+        for (int i = 0; i < maxLog; i++)
+        {
+            if (step & (1ll << i))
+            {
+                p = anc[i][p];
+                if (p == -1)
+                    break;
+            }
+        }
+        return p;
+    }
+
+    // 0-based
+    int deep(int p)
+    {
+        return depth[p];
+    }
+};
+
+void solve()
+{
+    int n, k;
+    cin >> n >> k;
+
+    vector adj(n + 1, vector<int>(0));
+    vector<int> fa(n + 1, 0);
+    for (int i = 2; i <= n; i++)
+    {
+        cin >> fa[i];
+        adj[fa[i]].push_back(i);
+    }
+
+    vector<array<int, 3>> a(n + 1);
+    for (int i = 1; i <= k; i++)
+    {
+        cin >> a[i][0] >> a[i][1] >> a[i][2];
+    }
+
+    TreeAnc anc(adj, 1);
+    vector<bool> mark(n + 1);
+    mark[1] = 1;
+    int ans = -1;
+
+    for (int i = 1; i <= k; i++)
+    {
+        auto [p, l, r] = a[i];
+        if (mark[p])
+        {
+            cout << l << '\n';
+            return;
+        }
+        int lo = 0, hi = anc.deep(p), res = -1, pos = -1;
+        while (lo <= hi)
+        {
+            int mid = lo + hi >> 1;
+            int idx = anc.query(p, mid);
+            if (mark[idx])
+                res = mid, pos = idx, hi = mid - 1;
+            else
+                lo = mid + 1;
+        }
+        int ed = anc.deep(pos) + (r - l + 1);
+        if (ed >= anc.deep(p))
+        {
+            ans = l + res - 1;
+            break;
+        }
+        while (anc.deep(p) != ed)
+            p = fa[p];
+        while (p != pos)
+        {
+            mark[p] = 1;
+            p = fa[p];
+        }
+    }
+    cout << ans;
 }
+
 signed main()
 {
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int t;
-    cin >> t;
-    while (t--)
-        solve();
+    ios::sync_with_stdio(0);
+    cin.tie(nullptr);
+    // int t;cin>>t;
+    // while (t--)
+    solve();
     return 0;
 }
